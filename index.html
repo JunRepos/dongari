@@ -143,6 +143,32 @@
   .filepick b{display:block; font-size:14px; margin-bottom:4px}
   .filepick span{font-size:12px; color:var(--muted); line-height:1.5}
 
+  /* 파일 */
+  .files{display:flex; gap:7px; flex-wrap:wrap}
+  .filechip{
+    display:inline-flex; align-items:center; gap:7px; max-width:100%; border:1px solid var(--rule); background:var(--surface);
+    border-radius:9px; padding:7px 10px; font-size:12.5px; color:var(--ink); text-decoration:none;
+  }
+  .filechip b{flex:0 0 auto; font-size:10px; font-weight:700; color:var(--paper); background:var(--ink-2); border-radius:4px; padding:1px 5px}
+  .filechip span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .filechip small{flex:0 0 auto; color:var(--muted); font-size:11px}
+  .filechip button{flex:0 0 auto; border:0; background:transparent; color:var(--muted); cursor:pointer; padding:0 0 0 4px; font-size:12px}
+  /* 역할 */
+  .roles{display:flex; gap:6px; flex-wrap:wrap}
+  .rolepill{display:inline-flex; align-items:baseline; gap:5px; border:1px solid var(--rule); border-radius:999px; padding:3px 10px; font-size:12px; background:var(--surface)}
+  .rolepill b{font-weight:700; color:var(--t-meet)}
+  .rolepill.me{border-color:var(--ink); background:var(--ink); color:var(--paper)}
+  .rolepill.me b{color:var(--paper)}
+  .rolerow{display:grid; grid-template-columns:1fr 1fr auto; gap:6px; margin-bottom:6px; align-items:center}
+  .rolerow input, .rolerow select{width:100%; border:1px solid var(--rule); border-radius:8px; padding:8px 9px; font-size:14px; background:var(--surface); color:var(--ink); font-family:inherit}
+  .rolerow button{border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:14px; padding:4px}
+  .myrole{display:flex; align-items:center; gap:8px; background:var(--surface-2); border-radius:10px; padding:9px 12px; font-size:13.5px}
+  .myrole b{font-size:15px; color:var(--t-meet)}
+  /* 프로젝트 */
+  .pstat{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted)}
+  .pstat .bar{flex:1}
+  .plink{display:flex; flex-direction:column; gap:5px}
+  .plink a{font-size:13.5px; color:var(--t-meet); text-decoration:underline; word-break:break-all}
   /* 준비물 */
   .task-row{display:flex; gap:10px; align-items:flex-start}
   .tick{
@@ -357,6 +383,14 @@
     </section>
   </div>
 
+  <!-- 프로젝트 -->
+  <div id="view-proj" hidden>
+    <section>
+      <p class="hint" style="margin:0 0 12px">신문 한 호, 방송 한 편처럼 몇 주에 걸친 일을 묶어 둡니다. 해올 것과 모임을 프로젝트에 매어 두면 한 곳에서 보입니다.</p>
+      <div id="proj-list"></div>
+    </section>
+  </div>
+
   <!-- 설정 -->
   <div id="view-set" hidden>
     <section>
@@ -466,10 +500,30 @@
       </label>
       <div class="shot-row" id="m-shots"></div>
     </div>
+    <div class="field">
+      <label>자료 — PDF·한글·슬라이드 파일 (완성된 신문도 여기에)</label>
+      <label class="filepick">
+        <b>파일 고르기</b>
+        <span>한 파일 30MB 까지, 최대 5개</span>
+        <input type="file" id="m-file" multiple hidden>
+      </label>
+      <div class="files" id="m-files" style="margin-top:8px"></div>
+    </div>
     <div class="field" id="m-attend-wrap">
       <label>참석한 부원 — 눌러서 고릅니다</label>
       <div class="picks" id="m-attend"></div>
     </div>
+    <div class="field">
+      <label>역할 — 이 모임에서 누가 무엇을 맡는지</label>
+      <div class="chips" id="m-role-presets" style="margin-bottom:8px"></div>
+      <div id="m-roles"></div>
+      <button type="button" class="link-btn" id="m-role-add">＋ 역할 줄 더하기</button>
+    </div>
+    <div class="field">
+      <label for="m-proj">프로젝트 (없어도 됩니다)</label>
+      <select id="m-proj"></select>
+    </div>
+    <p class="hint" id="m-draft-hint" hidden>부원이 쓴 기록은 ‘초안’으로 올라가고, 선생님이 확인하면 확정됩니다.</p>
     <p class="form-err" id="mt-err" hidden></p>
     <div class="sheet-actions">
       <button type="button" class="btn danger" id="m-delete" hidden>삭제</button>
@@ -501,6 +555,10 @@
       <div class="picks" id="t-who"></div>
     </div>
     <label class="check-row"><input type="checkbox" id="t-need"> 올린 것을 확인해야 하는 과제 (글·링크·사진을 받습니다)</label>
+    <div class="field">
+      <label for="t-proj">프로젝트 (없어도 됩니다)</label>
+      <select id="t-proj"></select>
+    </div>
     <p class="form-err" id="tk-err" hidden></p>
     <div class="sheet-actions">
       <button type="button" class="btn danger" id="t-delete" hidden>삭제</button>
@@ -531,6 +589,15 @@
         <input type="file" id="s-photo" accept="image/*" multiple hidden>
       </label>
       <div class="shot-row" id="s-shots"></div>
+    </div>
+    <div class="field">
+      <label>파일 — 원고(한글·워드·PDF)나 만든 것</label>
+      <label class="filepick">
+        <b>파일 고르기</b>
+        <span>한 파일 30MB 까지, 최대 3개</span>
+        <input type="file" id="s-file" multiple hidden>
+      </label>
+      <div class="files" id="s-files" style="margin-top:8px"></div>
     </div>
     <p class="form-err" id="sb-err" hidden></p>
     <div class="sheet-actions">
@@ -583,6 +650,52 @@
     </div>
     <p class="form-err" id="if-err" hidden></p>
     <div class="sheet-actions">
+      <button type="button" class="btn" data-close>취소</button>
+      <button type="submit" class="btn primary">저장</button>
+    </div>
+  </form>
+</div>
+
+<!-- 프로젝트 -->
+<div class="sheet" id="sheet-proj" role="dialog" aria-modal="true" aria-labelledby="pj-title">
+  <h2 id="pj-title">프로젝트</h2>
+  <p class="lead">예) 진로신문 1호 · 점심 방송 특집. 해올 것과 모임을 여기에 매어 두면 한 곳에서 보입니다.</p>
+  <form id="pj-form">
+    <div class="field">
+      <label for="p-title">이름</label>
+      <input type="text" id="p-title" autocomplete="off" placeholder="예) 진로신문 1호">
+    </div>
+    <div class="field">
+      <label for="p-goal">목표 — 무엇이 나오면 끝인가요</label>
+      <textarea id="p-goal" rows="3" placeholder="예) A3 네 장 신문 1부를 11월 첫 주에 게시판에 붙인다"></textarea>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label id="p-start-lb">시작</label>
+        <button type="button" class="datebtn" id="p-start" aria-labelledby="p-start-lb" aria-haspopup="dialog" aria-expanded="false"><span class="dv"></span><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="2"/><path d="M3 8.5h14M7 2.8v3.2M13 2.8v3.2"/></svg></button>
+      </div>
+      <div class="field">
+        <label id="p-end-lb">마감</label>
+        <button type="button" class="datebtn" id="p-end" aria-labelledby="p-end-lb" aria-haspopup="dialog" aria-expanded="false"><span class="dv"></span><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="2"/><path d="M3 8.5h14M7 2.8v3.2M13 2.8v3.2"/></svg></button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="p-links">같이 쓰는 문서 링크 — 한 줄에 하나, <b>이름 주소</b></label>
+      <textarea id="p-links" rows="3" placeholder="원고함 https://docs.google.com/…&#10;지면 https://docs.google.com/…"></textarea>
+    </div>
+    <div class="field">
+      <label>완성본·자료 파일</label>
+      <label class="filepick">
+        <b>파일 고르기</b>
+        <span>PDF·한글·슬라이드 등 · 한 파일 30MB, 최대 8개</span>
+        <input type="file" id="p-file" multiple hidden>
+      </label>
+      <div class="files" id="p-files" style="margin-top:8px"></div>
+    </div>
+    <label class="check-row"><input type="checkbox" id="p-done"> 끝난 프로젝트</label>
+    <p class="form-err" id="pj-err" hidden></p>
+    <div class="sheet-actions">
+      <button type="button" class="btn danger" id="p-delete" hidden>삭제</button>
       <button type="button" class="btn" data-close>취소</button>
       <button type="submit" class="btn primary">저장</button>
     </div>
@@ -1117,7 +1230,7 @@ var FIREBASE_CONFIG = {
     me: lsGet("club.me") || null,
     info: {name:"동아리", when:"", intro:""},
     code: "",                 // 선생님만 봅니다
-    meetings: [], tasks: [], subs: [], ideas: [], replies: [], members: [],
+    meetings: [], tasks: [], subs: [], ideas: [], replies: [], members: [], projects: [],
     taskMode: "open", open: {}
   };
   var CLIENT = lsGet("club.client");
@@ -1167,6 +1280,8 @@ var FIREBASE_CONFIG = {
         : "지금은 올릴 수 없어요. 동아리 코드를 다시 넣거나 선생님께 말씀해 주세요.";
     }
     if(code === "unavailable") return "서버에 닿지 못했습니다. 인터넷 연결을 확인해 주세요.";
+    if(code === "storage/unauthorized") return "파일 저장이 막혔습니다. Storage 규칙(club · clubfiles)을 올렸는지 확인해 주세요.";
+    if(code === "demo/too-big") return "데모에서는 3MB 넘는 파일을 담을 수 없습니다.";
     return "저장하지 못했습니다." + (code ? " (" + code + ")" : "");
   }
   // 서버가 답을 안 주면(인터넷 끊김) 몇 초 뒤 기기에 담아 두고 창을 닫습니다.
@@ -1194,6 +1309,7 @@ var FIREBASE_CONFIG = {
       State.ideas = lsGet("club.ideas") || [];
       State.replies = lsGet("club.replies") || [];
       State.members = lsGet("club.members") || [];
+      State.projects = lsGet("club.projects") || [];
       State.teacher = !!lsGet("club.teacherMode");
     },
     save:function(){
@@ -1205,12 +1321,13 @@ var FIREBASE_CONFIG = {
       lsSet("club.ideas", State.ideas);
       lsSet("club.replies", State.replies);
       lsSet("club.members", State.members);
+      lsSet("club.projects", State.projects);
     }
   };
 
   /* ================= Firebase ================= */
   var FB = {db:null, auth:null, st:null};
-  var unsubMembers = null, unsubCode = null;
+  var unsubCode = null;
   function quiet(){}
 
   function initCloud(){
@@ -1233,21 +1350,24 @@ var FIREBASE_CONFIG = {
           var isT = !!u && !u.isAnonymous;
           State.user = u;
           State.teacher = isT;
-          if(isT){
-            watchMembers();
-            watchCode();
-          } else {
-            if(unsubMembers){ unsubMembers(); unsubMembers = null; State.members = []; }
+          if(isT) watchCode();
+          else {
             if(unsubCode){ unsubCode(); unsubCode = null; State.code = ""; }
             if(activeTab === "set") switchTab("home");
           }
-          // 익명 기기면 내 부원 기록을 확인합니다(선생님이 내보냈으면 풀립니다)
+          if(unsubMe){ unsubMe(); unsubMe = null; }
           if(u && u.isAnonymous) watchMe(u.uid);
-          else if(!isT) State.me = State.me;   // 로그인 전이면 저장해 둔 것 그대로
+          else if(!u){
+            // 로그인이 풀린 기기는 글을 쓸 수 없으니 부원 표시도 거둡니다
+            State.me = null;
+            lsSet("club.me", null);
+          }
+          startGated();
           applyWide();
           render();
         });
 
+        // ── 누구나 보는 것
         FB.db.collection("clubInfo").doc("main").onSnapshot(function(doc){
           var v = doc.exists ? (doc.data() || {}) : {};
           State.info = {name: v.name || "동아리", when: v.when || "", intro: v.intro || ""};
@@ -1256,12 +1376,7 @@ var FIREBASE_CONFIG = {
         }, quiet);
 
         FB.db.collection("clubMeetings").onSnapshot(function(snap){
-          State.meetings = snap.docs.map(function(d){
-            var v = d.data() || {};
-            return {id:d.id, date:v.date || TODAY, no:v.no || null, title:v.title || "", body:v.body || "",
-                    photos: Array.isArray(v.photos) ? v.photos : [], attend: Array.isArray(v.attend) ? v.attend : [],
-                    createdAt:v.createdAt || 0, updatedAt:v.updatedAt || 0};
-          });
+          State.meetings = snap.docs.map(function(d){ return meetFrom(d.id, d.data() || {}); });
           render();
         }, quiet);
 
@@ -1269,50 +1384,81 @@ var FIREBASE_CONFIG = {
           State.tasks = snap.docs.map(function(d){
             var v = d.data() || {};
             return {id:d.id, title:v.title || "", detail:v.detail || "", due:v.due || "",
-                    who: Array.isArray(v.who) ? v.who : [], need: !!v.need,
+                    who: Array.isArray(v.who) ? v.who : [], need: !!v.need, projId: v.projId || "",
                     closed: !!v.closed, createdAt:v.createdAt || 0};
-          });
-          render();
-        }, quiet);
-
-        FB.db.collection("clubSubs").onSnapshot(function(snap){
-          State.subs = snap.docs.map(function(d){
-            var v = d.data() || {};
-            return {id:d.id, taskId:v.taskId || "", uid:v.uid || "", name:v.name || "",
-                    text:v.text || "", link:v.link || "", photos: Array.isArray(v.photos) ? v.photos : [],
-                    done: v.done !== false, updatedAt:v.updatedAt || 0};
-          });
-          render();
-        }, quiet);
-
-        FB.db.collection("clubIdeas").onSnapshot(function(snap){
-          State.ideas = snap.docs.map(function(d){
-            var v = d.data() || {};
-            return {id:d.id, title:v.title || "", body:v.body || "", name:v.name || "", uid:v.uid || "",
-                    pinned: !!v.pinned, createdAt:v.createdAt || 0};
-          });
-          render();
-        }, quiet);
-
-        FB.db.collection("clubReplies").onSnapshot(function(snap){
-          State.replies = snap.docs.map(function(d){
-            var v = d.data() || {};
-            return {id:d.id, ideaId:v.ideaId || "", text:v.text || "", name:v.name || "",
-                    uid:v.uid || "", createdAt:v.createdAt || 0};
           });
           render();
         }, quiet);
       });
   }
-  function watchMembers(){
-    if(unsubMembers) unsubMembers();
-    unsubMembers = FB.db.collection("clubMembers").onSnapshot(function(snap){
+  function meetFrom(id, v){
+    return {id:id, date:v.date || TODAY, no:v.no || null, title:v.title || "", body:v.body || "",
+            photos: Array.isArray(v.photos) ? v.photos : [], files: Array.isArray(v.files) ? v.files : [],
+            attend: Array.isArray(v.attend) ? v.attend : [], roles: Array.isArray(v.roles) ? v.roles : [],
+            projId: v.projId || "", draft: !!v.draft, by: v.by || "", byUid: v.byUid || "",
+            createdAt:v.createdAt || 0, updatedAt:v.updatedAt || 0};
+  }
+
+  /* 부원·선생님만 읽을 수 있는 것.
+     규칙이 막는 곳은 처음 한 번 막히면 듣기가 끝나 버리므로,
+     로그인이 바뀌거나 부원으로 확인될 때마다 새로 붙입니다. */
+  var gated = [], gatedKey = "";
+  function stopGated(){
+    gated.forEach(function(u){ try{ u(); }catch(e){} });
+    gated = [];
+  }
+  function startGated(){
+    if(!State.cloud) return;
+    var key = State.teacher ? "T" : (State.me ? "M:" + State.me.uid : "");
+    if(key === gatedKey) return;
+    gatedKey = key;
+    stopGated();
+    if(!key){
+      State.subs = []; State.ideas = []; State.replies = []; State.projects = []; State.members = [];
+      return;
+    }
+    gated.push(FB.db.collection("clubSubs").onSnapshot(function(snap){
+      State.subs = snap.docs.map(function(d){
+        var v = d.data() || {};
+        return {id:d.id, taskId:v.taskId || "", uid:v.uid || "", name:v.name || "",
+                text:v.text || "", link:v.link || "", photos: Array.isArray(v.photos) ? v.photos : [],
+                files: Array.isArray(v.files) ? v.files : [],
+                done: v.done !== false, updatedAt:v.updatedAt || 0};
+      });
+      render();
+    }, quiet));
+    gated.push(FB.db.collection("clubIdeas").onSnapshot(function(snap){
+      State.ideas = snap.docs.map(function(d){
+        var v = d.data() || {};
+        return {id:d.id, title:v.title || "", body:v.body || "", name:v.name || "", uid:v.uid || "",
+                pinned: !!v.pinned, createdAt:v.createdAt || 0};
+      });
+      render();
+    }, quiet));
+    gated.push(FB.db.collection("clubReplies").onSnapshot(function(snap){
+      State.replies = snap.docs.map(function(d){
+        var v = d.data() || {};
+        return {id:d.id, ideaId:v.ideaId || "", text:v.text || "", name:v.name || "",
+                uid:v.uid || "", createdAt:v.createdAt || 0};
+      });
+      render();
+    }, quiet));
+    gated.push(FB.db.collection("clubProjects").onSnapshot(function(snap){
+      State.projects = snap.docs.map(function(d){
+        var v = d.data() || {};
+        return {id:d.id, title:v.title || "", goal:v.goal || "", start:v.start || "", end:v.end || "",
+                links: Array.isArray(v.links) ? v.links : [], files: Array.isArray(v.files) ? v.files : [],
+                done: !!v.done, createdAt:v.createdAt || 0};
+      });
+      render();
+    }, quiet));
+    gated.push(FB.db.collection("clubMembers").onSnapshot(function(snap){
       State.members = snap.docs.map(function(d){
         var v = d.data() || {};
         return {uid:d.id, name:v.name || "", joinedAt:v.joinedAt || 0};
       }).sort(function(a, b){ return a.name < b.name ? -1 : 1; });
       render();
-    }, quiet);
+    }, quiet));
   }
   function watchCode(){
     if(unsubCode) unsubCode();
@@ -1322,8 +1468,9 @@ var FIREBASE_CONFIG = {
     }, quiet);
   }
   // 내 부원 기록 — 선생님이 내보내면 글쓰기 권한도 바로 풀립니다.
+  var unsubMe = null;
   function watchMe(uidStr){
-    FB.db.collection("clubMembers").doc(uidStr).onSnapshot(function(doc){
+    unsubMe = FB.db.collection("clubMembers").doc(uidStr).onSnapshot(function(doc){
       if(doc.exists){
         var v = doc.data() || {};
         State.me = {uid: uidStr, name: v.name || (State.me && State.me.name) || ""};
@@ -1332,6 +1479,7 @@ var FIREBASE_CONFIG = {
         State.me = null;
         lsSet("club.me", null);
       }
+      startGated();
       render();
     }, quiet);
   }
@@ -1339,7 +1487,7 @@ var FIREBASE_CONFIG = {
   /* 저장 도우미 — 서버가 있으면 Firestore, 없으면 이 기기 */
   function put(coll, id, data){
     if(State.cloud) return FB.db.collection(coll).doc(id).set(data, {merge:false});
-    var key = {clubMeetings:"meetings", clubTasks:"tasks", clubSubs:"subs", clubIdeas:"ideas", clubReplies:"replies"}[coll];
+    var key = {clubMeetings:"meetings", clubTasks:"tasks", clubSubs:"subs", clubIdeas:"ideas", clubReplies:"replies", clubProjects:"projects"}[coll];
     var arr = State[key] || [];
     var i = arr.map(function(x){ return x.id; }).indexOf(id);
     var row = {};
@@ -1353,7 +1501,7 @@ var FIREBASE_CONFIG = {
   }
   function drop(coll, id){
     if(State.cloud) return FB.db.collection(coll).doc(id)["delete"]();
-    var key = {clubMeetings:"meetings", clubTasks:"tasks", clubSubs:"subs", clubIdeas:"ideas", clubReplies:"replies"}[coll];
+    var key = {clubMeetings:"meetings", clubTasks:"tasks", clubSubs:"subs", clubIdeas:"ideas", clubReplies:"replies", clubProjects:"projects"}[coll];
     State[key] = (State[key] || []).filter(function(x){ return x.id !== id; });
     Local.save();
     render();
@@ -1462,39 +1610,213 @@ var FIREBASE_CONFIG = {
     });
     return ps;
   }
+  /* ---------------- 파일 (PDF·한글·슬라이드 …) ----------------
+     사진이 아닌 파일은 Storage clubfiles/ 아래에 둡니다. */
+  var MAX_FILE = 30 * 1024 * 1024;
+  function fileKind(name, type){
+    var ext = String(name || "").split(".").pop().toLowerCase();
+    if(ext === "pdf" || /pdf/.test(type || "")) return "PDF";
+    if(ext === "hwp" || ext === "hwpx") return "한글";
+    if(ext === "doc" || ext === "docx") return "워드";
+    if(ext === "ppt" || ext === "pptx") return "PPT";
+    if(ext === "xls" || ext === "xlsx" || ext === "csv") return "엑셀";
+    if(/^image\//.test(type || "")) return "사진";
+    if(/^video\//.test(type || "")) return "영상";
+    if(/^audio\//.test(type || "")) return "소리";
+    return ext && ext.length <= 4 ? ext.toUpperCase() : "파일";
+  }
+  function sizeText(n){
+    if(!n) return "";
+    if(n < 1024 * 1024) return Math.max(1, Math.round(n / 1024)) + "KB";
+    return (n / 1024 / 1024).toFixed(1) + "MB";
+  }
+  function uploadFileTo(docId, file){
+    var meta = {name:file.name || "파일", size:file.size || 0, type:file.type || ""};
+    if(!State.cloud){
+      // 데모는 이 기기 저장 공간이 작아 3MB 까지만
+      if(file.size > 3 * 1024 * 1024) return Promise.reject({code:"demo/too-big"});
+      return blobToDataURL(file).then(function(u){ meta.url = u; meta.path = ""; return meta; });
+    }
+    if(!FB.st) return Promise.reject({code:"storage/no-bucket"});
+    var safe = (file.name || "file").replace(/[^\w.\-가-힣 ]/g, "_");
+    var path = "clubfiles/" + docId + "/" + Date.now().toString(36) + "_" + safe;
+    var task = FB.st.ref(path).put(file, {
+      contentType: file.type || "application/octet-stream",
+      contentDisposition: "inline; filename*=UTF-8''" + encodeURIComponent(file.name || "file")
+    });
+    return new Promise(function(res, rej){
+      task.on("state_changed", null, rej, function(){
+        task.snapshot.ref.getDownloadURL().then(function(url){ meta.url = url; meta.path = path; res(meta); }, rej);
+      });
+    });
+  }
+  // 파일 조각들. onRemove 가 있으면 고르는 중(✕ 단추), 없으면 눌러서 여는 링크
+  function fileChips(files, onRemove, into){
+    var box = into || el("div", "files");
+    (files || []).forEach(function(f, i){
+      var c = el(onRemove ? "div" : "a", "filechip");
+      if(!onRemove){
+        c.href = f.url;
+        c.target = "_blank";
+        c.rel = "noopener noreferrer";
+        if(/^data:/.test(f.url || "")) c.download = f.name || "파일";
+      }
+      c.appendChild(el("b", null, fileKind(f.name, f.type)));
+      c.appendChild(el("span", null, f.name || "파일"));
+      if(f.size) c.appendChild(el("small", null, sizeText(f.size)));
+      if(onRemove){
+        var x = el("button", null, "✕");
+        x.type = "button";
+        x.setAttribute("aria-label", (f.name || "파일") + " 빼기");
+        x.addEventListener("click", function(){ onRemove(i); });
+        c.appendChild(x);
+      }
+      box.appendChild(c);
+    });
+    return box;
+  }
+  function fileBox(boxId, max){
+    return {
+      list: [],
+      render: function(){
+        var self = this, box = $(boxId);
+        clear(box);
+        fileChips(this.list.map(function(x){
+          return x.file ? {name:x.file.name, size:x.file.size, type:x.file.type} : x;
+        }), function(i){ self.list.splice(i, 1); markSheetTouched(); self.render(); }, box);
+      },
+      add: function(files, errId){
+        var self = this, added = 0, msg = "";
+        Array.prototype.forEach.call(files || [], function(f){
+          if(self.list.length >= max){ msg = "파일은 " + max + "개까지 올라갑니다."; return; }
+          if(f.size > MAX_FILE){ msg = (f.name || "파일") + " 은(는) 30MB 가 넘습니다."; return; }
+          self.list.push({file:f});
+          added++;
+        });
+        if(msg && errId) showErr(errId, msg);
+        if(added) markSheetTouched();
+        this.render();
+        return added;
+      },
+      upload: function(docId, onStep){
+        var out = [], n = 0;
+        return this.list.reduce(function(pr, x){
+          return pr.then(function(){
+            if(!x.file) return {url:x.url, path:x.path || "", name:x.name || "", size:x.size || 0, type:x.type || ""};
+            n++;
+            if(onStep) onStep(n);
+            return uploadFileTo(docId, x.file);
+          }).then(function(r){ out.push(r); });
+        }, Promise.resolve()).then(function(){ return out; });
+      },
+      load: function(files){
+        this.list = (files || []).map(function(f){ return {url:f.url, path:f.path, name:f.name, size:f.size, type:f.type}; });
+        this.render();
+      }
+    };
+  }
+
+  /* ---------------- 역할 ---------------- */
+  var ROLE_PRESETS = ["진행", "기록", "편집장", "데스크", "교정", "디자인", "사진·캡션", "발행"];
+  function cleanRoles(list){
+    return (list || []).map(function(r){ return {role: String(r.role || "").trim(), name: String(r.name || "").trim()}; })
+      .filter(function(r){ return r.role || r.name; });
+  }
+  function myRolesIn(m){
+    var n = myName();
+    if(!n || State.teacher) return [];
+    return (m.roles || []).filter(function(r){ return r.name === n; });
+  }
+  function rolePills(m){
+    var box = el("div", "roles");
+    var me = State.teacher ? "" : myName();
+    cleanRoles(m.roles).forEach(function(r){
+      var pill = el("span", "rolepill" + (me && r.name === me ? " me" : ""));
+      pill.appendChild(el("b", null, r.role || "역할"));
+      pill.appendChild(document.createTextNode(r.name || "미정"));
+      box.appendChild(pill);
+    });
+    return box;
+  }
+
+  /* ---------------- 프로젝트 ---------------- */
+  function projById(id){
+    for(var i = 0; i < State.projects.length; i++) if(State.projects[i].id === id) return State.projects[i];
+    return null;
+  }
+  function projectsSorted(){
+    return State.projects.slice().sort(function(a, b){
+      if(!!a.done !== !!b.done) return a.done ? 1 : -1;
+      var ae = a.end || "9999-99-99", be = b.end || "9999-99-99";
+      if(ae !== be) return ae < be ? -1 : 1;
+      return (b.createdAt||0) - (a.createdAt||0);
+    });
+  }
+  // 프로젝트 고르는 칸 채우기. 끝난 프로젝트는 지금 골라 둔 것일 때만 보입니다.
+  function fillProjSelect(selId, cur){
+    var sel = $(selId);
+    clear(sel);
+    var o0 = el("option", null, "없음");
+    o0.value = "";
+    sel.appendChild(o0);
+    projectsSorted().forEach(function(p){
+      if(p.done && p.id !== cur) return;
+      var o = el("option", null, p.title + (p.done ? " (끝남)" : ""));
+      o.value = p.id;
+      sel.appendChild(o);
+    });
+    sel.value = cur || "";
+    sel.parentNode.hidden = !State.projects.length;
+  }
+
+  function canEditMeet(m){
+    return State.teacher || (!!State.me && m.draft && m.byUid === myUid());
+  }
   function meetCard(m, opts){
     opts = opts || {};
-    var card = el("div", "card");
+    var card = el("div", "card" + (m.draft ? " pin" : ""));
     var head = el("div", "card-head");
     head.appendChild(el("div", "card-title", m.title || "모임"));
     card.appendChild(head);
 
     var meta = el("div", "card-meta");
-    if(m.no) meta.appendChild(el("span", "flag", m.no + "회차"));
+    if(m.draft) meta.appendChild(el("span", "flag", "초안 · " + (m.by || "부원")));
+    if(m.no) meta.appendChild(el("span", "flag grey", m.no + "회차"));
     var left = diffDays(m.date, TODAY);
-    if(left >= 0) meta.appendChild(el("span", "flag dd", ddayText(left)));
+    if(left >= 0) meta.appendChild(el("span", "flag dd", left === 0 ? "오늘" : ddayText(left)));
     meta.appendChild(el("span", null, mdText(m.date)));
+    var pj = m.projId ? projById(m.projId) : null;
+    if(pj) meta.appendChild(el("span", "flag grey", pj.title));
     if(m.attend && m.attend.length) meta.appendChild(el("span", null, "참석 " + m.attend.length + "명"));
     card.appendChild(meta);
 
+    if(cleanRoles(m.roles).length) card.appendChild(rolePills(m));
     if(m.body) card.appendChild(richBlock(m.body, "m" + m.id));
     if(m.photos && m.photos.length) card.appendChild(photoRow(m.photos, m.title || "모임"));
+    if(m.files && m.files.length) card.appendChild(fileChips(m.files));
 
     if(m.attend && m.attend.length && !opts.tight){
       card.appendChild(el("div", "who-line", "참석 · " + m.attend.join(", ")));
     }
     // 이 모임까지 해올 것
-    var mine = State.tasks.filter(function(t){ return t.due && t.due === m.date; });
-    if(mine.length && !opts.tight){
-      var tl = el("div", "who-line", "준비물 · " + mine.map(function(t){ return t.title; }).join(" / "));
-      card.appendChild(tl);
+    var due = State.tasks.filter(function(t){ return t.due && t.due === m.date; });
+    if(due.length && !opts.tight){
+      card.appendChild(el("div", "who-line", "준비물 · " + due.map(function(t){ return t.title; }).join(" / ")));
     }
-    if(State.teacher && !opts.tight){
+    if(!opts.tight && canEditMeet(m)){
       var tools = el("div", "tools");
+      if(State.teacher && m.draft){
+        tools.appendChild(toolBtn("확정하기", function(){
+          put("clubMeetings", m.id, meetData(m, {draft:false}))
+            .then(function(){ toast("확정했습니다"); })
+            ["catch"](function(e){ toast(errText(e)); });
+        }));
+      }
       tools.appendChild(toolBtn("고치기", function(){ openMeet(m); }));
       tools.appendChild(toolBtn("삭제", function(){
         if(!window.confirm("이 모임 기록을 지울까요?")) return;
-        drop("clubMeetings", m.id).then(function(){ toast("지웠습니다"); });
+        drop("clubMeetings", m.id).then(function(){ toast("지웠습니다"); })
+          ["catch"](function(e){ toast(errText(e)); });
       }, true));
       card.appendChild(tools);
     }
@@ -1531,6 +1853,8 @@ var FIREBASE_CONFIG = {
       meta.appendChild(el("span", null, mdText(t.due)));
     }
     meta.appendChild(el("span", null, (!t.who || !t.who.length) ? "부원 전체" : t.who.join(", ")));
+    var tpj = t.projId ? projById(t.projId) : null;
+    if(tpj) meta.appendChild(el("span", "flag grey", tpj.title));
     if(forMe(t) && !State.teacher) meta.appendChild(el("span", "flag mine", "나"));
     if(t.closed) meta.appendChild(el("span", "flag grey", "끝남"));
     mid.appendChild(meta);
@@ -1563,7 +1887,12 @@ var FIREBASE_CONFIG = {
           a.href = s.link; a.target = "_blank"; a.rel = "noopener noreferrer";
           tx.appendChild(a);
         }
-        if(!s.text && !s.link) tx.appendChild(document.createTextNode(s.done ? "다 했다고 표시했어요" : "아직"));
+        if(!s.text && !s.link && !(s.files && s.files.length)) tx.appendChild(document.createTextNode(s.done ? "다 했다고 표시했어요" : "아직"));
+        if(s.files && s.files.length){
+          var fc = fileChips(s.files);
+          fc.style.marginTop = "5px";
+          tx.appendChild(fc);
+        }
         r.appendChild(tx);
         box.appendChild(r);
         if(s.photos && s.photos.length){
@@ -1680,6 +2009,15 @@ var FIREBASE_CONFIG = {
       when.appendChild(el("div", "date", mdText(nx.date)));
       c.appendChild(when);
       c.appendChild(el("div", "ttl", nx.title || "모임"));
+      var mr = myRolesIn(nx);
+      if(mr.length){
+        var rb = el("div", "myrole");
+        rb.appendChild(document.createTextNode("이날 내 역할"));
+        rb.appendChild(el("b", null, mr.map(function(r){ return r.role; }).join(" · ")));
+        c.appendChild(rb);
+      } else if(cleanRoles(nx.roles).length){
+        c.appendChild(rolePills(nx));
+      }
       if(State.info.when) c.appendChild(el("div", "sub", State.info.when));
       var due = State.tasks.filter(function(t){ return !t.closed && t.due === nx.date; });
       if(due.length){
@@ -1707,7 +2045,8 @@ var FIREBASE_CONFIG = {
     var ib = $("home-ideas");
     clear(ib);
     var ideas = ideasSorted().slice(0, 2);
-    if(!ideas.length) ib.appendChild(emptyBox("아직 올라온 의견이 없어요", canWrite() ? "먼저 하나 올려 보세요" : ""));
+    if(State.cloud && !canWrite()) ib.appendChild(emptyBox("부원만 볼 수 있어요", "코드를 넣고 들어오면 보입니다"));
+    else if(!ideas.length) ib.appendChild(emptyBox("아직 올라온 의견이 없어요", canWrite() ? "먼저 하나 올려 보세요" : ""));
     else {
       var iw = el("div", "cards");
       ideas.forEach(function(i){ iw.appendChild(ideaCard(i)); });
@@ -1730,7 +2069,7 @@ var FIREBASE_CONFIG = {
     var box = $("meet-list");
     clear(box);
     fillDemo("meet-demo");
-    var all = meetingsSorted();
+    var all = meetingsSorted().filter(function(m){ return !m.draft || canWrite(); });
     if(!all.length){
       box.appendChild(emptyBox("아직 모임 기록이 없어요",
         State.teacher ? "아래 ‘모임 기록’으로 첫 모임을 적어 보세요" : "선생님이 올리면 여기에 쌓입니다"));
@@ -1777,12 +2116,98 @@ var FIREBASE_CONFIG = {
     box.appendChild(w);
   }
 
+  function projCard(p){
+    var card = el("div", "card" + (p.done ? "" : " pin"));
+    var head = el("div", "card-head");
+    head.appendChild(el("div", "card-title", p.title || "프로젝트"));
+    card.appendChild(head);
+
+    var meta = el("div", "card-meta");
+    if(p.done) meta.appendChild(el("span", "flag done", "끝남"));
+    else if(p.end){
+      var left = diffDays(p.end, TODAY);
+      meta.appendChild(el("span", "flag " + (left < 0 ? "late" : "dd"), left === 0 ? "오늘 마감" : (left > 0 ? ddayText(left) : "마감 지남")));
+    }
+    if(p.start || p.end){
+      meta.appendChild(el("span", null, (p.start ? mdText(p.start) : "") + " ~ " + (p.end ? mdText(p.end) : "")));
+    }
+    card.appendChild(meta);
+    if(p.goal) card.appendChild(richBlock(p.goal, "p" + p.id));
+
+    // 이 프로젝트의 해올 것 · 모임
+    var tasks = tasksSorted().filter(function(t){ return t.projId === p.id; });
+    var meets = State.meetings.filter(function(m){ return m.projId === p.id && (!m.draft || canWrite()); })
+      .sort(function(a, b){ return a.date < b.date ? -1 : 1; });
+    if(tasks.length){
+      var closed = tasks.filter(function(t){ return t.closed; }).length;
+      var st = el("div", "pstat");
+      st.appendChild(el("span", null, "해올 것 " + closed + "/" + tasks.length));
+      var bar = el("div", "bar");
+      var fill = el("i");
+      fill.style.width = Math.round(closed / tasks.length * 100) + "%";
+      bar.appendChild(fill);
+      st.appendChild(bar);
+      card.appendChild(st);
+      tasks.forEach(function(t){
+        var subs = subsOf(t.id).filter(function(x){ return x.done; }).length;
+        var row = el("div", "subrow");
+        row.appendChild(el("div", "nm", t.due ? mdText(t.due).replace(/ \(.\)$/, "") : "기한 없음"));
+        row.appendChild(el("div", "tx", t.title + (t.closed ? " · 끝남" : (subs ? " · " + subs + "명 올림" : ""))));
+        card.appendChild(row);
+      });
+    }
+    if(meets.length){
+      card.appendChild(el("div", "who-line", "모임 · " + meets.map(function(m){
+        return mdText(m.date).replace(/ \(.\)$/, "") + " " + (m.title || "모임");
+      }).join(" / ")));
+    }
+    if(p.links && p.links.length){
+      var lk = el("div", "plink");
+      p.links.forEach(function(x){
+        var a = el("a", null, x.name || x.url);
+        a.href = x.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+        lk.appendChild(a);
+      });
+      card.appendChild(lk);
+    }
+    if(p.files && p.files.length) card.appendChild(fileChips(p.files));
+
+    if(State.teacher){
+      var tools = el("div", "tools");
+      tools.appendChild(toolBtn("고치기", function(){ openProj(p); }));
+      tools.appendChild(toolBtn("해올 것 더하기", function(){ openTask(null, p.id); }));
+      tools.appendChild(toolBtn("모임 더하기", function(){ openMeet(null, p.id); }));
+      tools.appendChild(toolBtn(p.done ? "다시 열기" : "끝내기", function(){
+        put("clubProjects", p.id, projData(p, {done: !p.done}))
+          .then(function(){ toast(p.done ? "다시 열었습니다" : "끝냈습니다"); })
+          ["catch"](function(e){ toast(errText(e)); });
+      }));
+      card.appendChild(tools);
+    }
+    return card;
+  }
+  function renderProjView(){
+    var box = $("proj-list");
+    clear(box);
+    var list = projectsSorted();
+    if(!list.length){
+      box.appendChild(emptyBox("아직 프로젝트가 없어요",
+        State.teacher ? "아래 ‘프로젝트 만들기’로 첫 프로젝트를 열어 보세요 (예: 진로신문 1호)" : "선생님이 만들면 여기에 보입니다"));
+      return;
+    }
+    var w = el("div", "cards");
+    list.forEach(function(p){ w.appendChild(projCard(p)); });
+    box.appendChild(w);
+  }
+
   function renderIdeaView(){
     var box = $("idea-list");
     clear(box);
     var list = ideasSorted();
     if(!list.length){
-      box.appendChild(emptyBox("아직 의견이 없어요", canWrite() ? "아래 버튼으로 먼저 하나 올려 보세요" : "부원으로 들어오면 글을 쓸 수 있습니다"));
+      box.appendChild(State.cloud && !canWrite()
+        ? emptyBox("부원만 볼 수 있어요", "오른쪽 위 ‘로그인 → 부원’에서 코드를 넣어 주세요")
+        : emptyBox("아직 의견이 없어요", canWrite() ? "아래 버튼으로 먼저 하나 올려 보세요" : "부원으로 들어오면 글을 쓸 수 있습니다"));
       return;
     }
     var w = el("div", "cards");
@@ -1874,13 +2299,21 @@ var FIREBASE_CONFIG = {
      icon:'<rect x="3.5" y="5" width="15" height="13.5" rx="2"/><path d="M3.5 9h15M7.5 3.5v3M14.5 3.5v3"/>'},
     {id:"task", label:"준비물", title:"해올 것", eyebrow:"준비물", view:"view-task",
      icon:'<circle cx="11" cy="11" r="7.4"/><path d="M7.8 11.2l2.2 2.2 4.2-4.6"/>'},
+    {id:"proj", label:"프로젝트", title:"프로젝트", eyebrow:"프로젝트", view:"view-proj", member:true,
+     icon:'<path d="M3.5 6.5A1.5 1.5 0 0 1 5 5h4l1.6 1.8H17a1.5 1.5 0 0 1 1.5 1.5V16A1.5 1.5 0 0 1 17 17.5H5A1.5 1.5 0 0 1 3.5 16z"/>'},
     {id:"idea", label:"의견", title:"의견 나누기", eyebrow:"의견", view:"view-idea",
      icon:'<path d="M4 5.6A1.6 1.6 0 0 1 5.6 4h10.8A1.6 1.6 0 0 1 18 5.6v7.2a1.6 1.6 0 0 1-1.6 1.6H8.2L4.6 18z"/>'},
     {id:"set", label:"설정", title:"동아리 설정", eyebrow:"설정", view:"view-set", teacher:true,
      icon:'<circle cx="11" cy="11" r="2.8"/><path d="M11 3.4v2M11 16.6v2M18.6 11h-2M5.4 11h-2M16.4 5.6l-1.4 1.4M7 15l-1.4 1.4M16.4 16.4 15 15M7 7 5.6 5.6"/>'}
   ];
   var activeTab = "home";
-  function visibleTabs(){ return TABS.filter(function(t){ return !t.teacher || State.teacher; }); }
+  function visibleTabs(){
+    return TABS.filter(function(t){
+      if(t.teacher) return State.teacher;
+      if(t.member) return canWrite() || !State.cloud;
+      return true;
+    });
+  }
   function renderTabs(){
     var bar = $("tabbar");
     clear(bar);
@@ -1927,6 +2360,8 @@ var FIREBASE_CONFIG = {
     clear(fab);
     var label = null, action = null;
     if(State.teacher && (activeTab === "meet" || activeTab === "home")){ label = "모임 기록"; action = function(){ openMeet(null); }; }
+    else if(!State.teacher && State.me && activeTab === "meet"){ label = "기록 초안 쓰기"; action = function(){ openMeet(null); }; }
+    else if(State.teacher && activeTab === "proj"){ label = "프로젝트 만들기"; action = function(){ openProj(null); }; }
     else if(State.teacher && activeTab === "task"){ label = "해올 것 올리기"; action = function(){ openTask(null); }; }
     else if(activeTab === "idea" && canWrite()){ label = "의견 올리기"; action = function(){ openIdea(null); }; }
     else if(activeTab === "set" && State.teacher){ label = "동아리 정보 고치기"; action = function(){ openInfo(); }; }
@@ -1946,6 +2381,10 @@ var FIREBASE_CONFIG = {
   window.addEventListener("resize", applyWide);
 
   function render(){
+    if(!visibleTabs().some(function(t){ return t.id === activeTab; })){
+      activeTab = "home";
+      TABS.forEach(function(t){ $(t.view).hidden = (t.id !== "home"); });
+    }
     var cur = TABS.filter(function(t){ return t.id === activeTab; })[0] || TABS[0];
     $("page-title").textContent = cur.title || (State.info.name || "동아리");
     $("eyebrow").textContent = cur.eyebrow;
@@ -1955,12 +2394,13 @@ var FIREBASE_CONFIG = {
     if(activeTab === "home") renderHome();
     else if(activeTab === "meet") renderMeetView();
     else if(activeTab === "task") renderTaskView();
+    else if(activeTab === "proj") renderProjView();
     else if(activeTab === "idea") renderIdeaView();
     else if(activeTab === "set") renderSetView();
   }
 
   /* ================= 시트 ================= */
-  var GUARD = ["sheet-meet","sheet-task","sheet-sub","sheet-idea","sheet-info"];
+  var GUARD = ["sheet-meet","sheet-task","sheet-sub","sheet-idea","sheet-info","sheet-proj"];
   var sheetTouched = false;
   function openGuardSheet(){
     var open = null;
@@ -1987,7 +2427,7 @@ var FIREBASE_CONFIG = {
     closeDatePop();
     sheetTouched = false;
     $("scrim").classList.remove("open");
-    ["sheet-login","sheet-meet","sheet-task","sheet-sub","sheet-idea","sheet-info"].forEach(function(id){
+    ["sheet-login","sheet-meet","sheet-task","sheet-sub","sheet-idea","sheet-info","sheet-proj"].forEach(function(id){
       $(id).classList.remove("open");
     });
   }
@@ -2184,8 +2624,10 @@ var FIREBASE_CONFIG = {
     if(n) toast(n + "장 붙여 넣었습니다");
   });
 
-  /* 모임 기록 */
-  var editingMeet = null, attendPick = [];
+  /* 모임 기록 — 선생님은 바로 확정, 부원이 쓰면 ‘초안’ */
+  var editingMeet = null, attendPick = [], roleRows = [];
+  var mFiles = fileBox("m-files", 5);
+  $("m-file").addEventListener("change", function(e){ mFiles.add(e.target.files, "mt-err"); this.value = ""; });
   function renderAttend(){
     var box = $("m-attend");
     clear(box);
@@ -2207,17 +2649,81 @@ var FIREBASE_CONFIG = {
       box.appendChild(b);
     });
   }
-  function openMeet(m){
+  // 역할 줄: [역할 이름] [맡을 부원] [✕]
+  function renderRoleRows(){
+    var box = $("m-roles");
+    clear(box);
+    var names = memberNames();
+    roleRows.forEach(function(r, i){
+      var row = el("div", "rolerow");
+      var ri = document.createElement("input");
+      ri.type = "text";
+      ri.value = r.role;
+      ri.placeholder = "역할";
+      ri.setAttribute("aria-label", (i+1) + "번째 역할 이름");
+      ri.addEventListener("input", function(){ r.role = ri.value; });
+      var sel = document.createElement("select");
+      sel.setAttribute("aria-label", (r.role || "역할") + " 맡을 부원");
+      var o0 = el("option", null, "누가?");
+      o0.value = "";
+      sel.appendChild(o0);
+      var list = names.slice();
+      if(r.name && list.indexOf(r.name) < 0) list.push(r.name);
+      list.forEach(function(n){
+        var o = el("option", null, n);
+        o.value = n;
+        sel.appendChild(o);
+      });
+      sel.value = r.name || "";
+      sel.addEventListener("change", function(){ r.name = sel.value; });
+      var x = el("button", null, "✕");
+      x.type = "button";
+      x.setAttribute("aria-label", (r.role || "이") + " 역할 줄 빼기");
+      x.addEventListener("click", function(){ roleRows.splice(i, 1); markSheetTouched(); renderRoleRows(); });
+      row.appendChild(ri);
+      row.appendChild(sel);
+      row.appendChild(x);
+      box.appendChild(row);
+    });
+    var pre = $("m-role-presets");
+    clear(pre);
+    ROLE_PRESETS.forEach(function(name){
+      var used = roleRows.some(function(r){ return r.role === name; });
+      var c = el("button", "chip", "＋ " + name);
+      c.type = "button";
+      c.setAttribute("aria-pressed", used ? "true" : "false");
+      c.addEventListener("click", function(){
+        roleRows.push({role:name, name:""});
+        markSheetTouched();
+        renderRoleRows();
+      });
+      pre.appendChild(c);
+    });
+  }
+  $("m-role-add").addEventListener("click", function(){
+    roleRows.push({role:"", name:""});
+    markSheetTouched();
+    renderRoleRows();
+  });
+  function openMeet(m, projId){
+    if(!State.teacher && !State.me){ openLogin("member"); return; }
+    if(m && !canEditMeet(m)){ toast("확정된 기록은 선생님만 고칠 수 있어요"); return; }
     editingMeet = m;
-    $("mt-title").textContent = m ? "모임 기록 고치기" : "모임 기록";
+    var draft = !State.teacher;
+    $("mt-title").textContent = m ? (m.draft ? "초안 고치기" : "모임 기록 고치기") : (draft ? "모임 기록 초안" : "모임 기록");
     setDate("m-date", (m && m.date) || TODAY);
-    $("m-no").value = (m && m.no) ? m.no : (State.meetings.length + 1);
+    $("m-no").value = (m && m.no) ? m.no : (State.meetings.filter(function(x){ return !x.draft; }).length + 1);
     $("m-title").value = m ? m.title : "";
     $("m-body").value = m ? m.body : "";
     mShots.list = ((m && m.photos) || []).map(function(p){ return {url:p.url, path:p.path}; });
     mShots.render();
+    mFiles.load(m && m.files);
     attendPick = ((m && m.attend) || []).slice();
     renderAttend();
+    roleRows = cleanRoles(m && m.roles);
+    renderRoleRows();
+    fillProjSelect("m-proj", (m && m.projId) || projId || "");
+    $("m-draft-hint").hidden = !draft;
     $("m-delete").hidden = !m;
     $("mt-err").hidden = true;
     openSheet("sheet-meet");
@@ -2227,7 +2733,11 @@ var FIREBASE_CONFIG = {
     var d = {
       date: m.date || TODAY, no: m.no || null, title: m.title || "", body: m.body || "",
       photos: (m.photos || []).map(function(p){ return {url:p.url, path:p.path || ""}; }),
+      files: (m.files || []).map(function(f){ return {url:f.url, path:f.path || "", name:f.name || "", size:f.size || 0, type:f.type || ""}; }),
       attend: (m.attend || []).slice(),
+      roles: cleanRoles(m.roles),
+      projId: m.projId || "",
+      draft: !!m.draft, by: m.by || "", byUid: m.byUid || "",
       createdAt: m.createdAt || Date.now(), updatedAt: Date.now()
     };
     Object.keys(over || {}).forEach(function(k){ d[k] = over[k]; });
@@ -2244,8 +2754,14 @@ var FIREBASE_CONFIG = {
     var label = btn.textContent;
     btn.disabled = true;
     var no = parseInt($("m-no").value, 10);
+    // 선생님이 저장하면 확정, 부원이 쓰면 초안(쓴 사람 그대로)
+    var draft = !State.teacher;
+    var photos = [];
 
-    mShots.upload("club", id, function(n){ btn.textContent = "사진 올리는 중 " + n; }).then(function(photos){
+    mShots.upload("club", id, function(n){ btn.textContent = "사진 올리는 중 " + n; }).then(function(ph){
+      photos = ph;
+      return mFiles.upload(id, function(n){ btn.textContent = "파일 올리는 중 " + n; });
+    }).then(function(files){
       btn.textContent = "저장 중…";
       return withPatience(put("clubMeetings", id, meetData({
         date: getDate("m-date"),
@@ -2253,13 +2769,20 @@ var FIREBASE_CONFIG = {
         title: title,
         body: $("m-body").value.trim(),
         photos: photos,
+        files: files,
         attend: attendPick,
+        roles: roleRows,
+        projId: $("m-proj").value,
+        draft: draft,
+        by: was && was.by ? was.by : (draft ? myName() : "선생님"),
+        byUid: was && was.byUid ? was.byUid : myUid(),
         createdAt: was ? (was.createdAt || Date.now()) : Date.now()
       })));
     }).then(function(how){
       mShots.list = [];
+      mFiles.list = [];
       closeSheets();
-      savedToast(how, was ? "고쳤습니다" : "저장했습니다");
+      savedToast(how, draft ? "초안으로 올렸습니다 — 선생님이 확인하면 확정됩니다" : (was ? "고쳤습니다" : "저장했습니다"));
     })["catch"](function(ex){
       showErr("mt-err", errText(ex));
     })["then"](function(){
@@ -2269,7 +2792,8 @@ var FIREBASE_CONFIG = {
   });
   $("m-delete").addEventListener("click", function(){
     if(!editingMeet || !window.confirm("이 모임 기록을 지울까요?")) return;
-    drop("clubMeetings", editingMeet.id).then(function(){ closeSheets(); toast("지웠습니다"); });
+    drop("clubMeetings", editingMeet.id).then(function(){ closeSheets(); toast("지웠습니다"); })
+      ["catch"](function(e){ showErr("mt-err", errText(e)); });
   });
 
   /* 해올 것 */
@@ -2295,7 +2819,7 @@ var FIREBASE_CONFIG = {
       box.appendChild(b);
     });
   }
-  function openTask(t){
+  function openTask(t, projId){
     editingTask = t;
     $("tk-title").textContent = t ? "해올 것 고치기" : "해올 것";
     $("t-title").value = t ? t.title : "";
@@ -2305,6 +2829,7 @@ var FIREBASE_CONFIG = {
     whoPick = ((t && t.who) || []).slice();
     renderWhoPick();
     $("t-need").checked = t ? !!t.need : true;
+    fillProjSelect("t-proj", (t && t.projId) || projId || "");
     $("t-delete").hidden = !t;
     $("tk-err").hidden = true;
     openSheet("sheet-task");
@@ -2313,7 +2838,7 @@ var FIREBASE_CONFIG = {
   function taskData(t, over){
     var d = {
       title: t.title || "", detail: t.detail || "", due: t.due || "",
-      who: (t.who || []).slice(), need: !!t.need, closed: !!t.closed,
+      who: (t.who || []).slice(), need: !!t.need, closed: !!t.closed, projId: t.projId || "",
       createdAt: t.createdAt || Date.now(), updatedAt: Date.now()
     };
     Object.keys(over || {}).forEach(function(k){ d[k] = over[k]; });
@@ -2334,6 +2859,7 @@ var FIREBASE_CONFIG = {
       due: getDate("t-due"),
       who: whoPick,
       need: $("t-need").checked,
+      projId: $("t-proj").value,
       closed: was ? !!was.closed : false,
       createdAt: was ? (was.createdAt || Date.now()) : Date.now()
     }))).then(function(how){
@@ -2353,6 +2879,8 @@ var FIREBASE_CONFIG = {
 
   /* 해온 것 올리기 */
   var subTask = null;
+  var sFiles = fileBox("s-files", 3);
+  $("s-file").addEventListener("change", function(e){ sFiles.add(e.target.files, "sb-err"); this.value = ""; });
   function subId(taskId){ return taskId + "__" + myUid(); }
   function toggleDone(t){
     if(!canWrite()){ openLogin("member"); return; }
@@ -2361,7 +2889,8 @@ var FIREBASE_CONFIG = {
     put("clubSubs", subId(t.id), {
       taskId: t.id, uid: myUid(), name: myName(),
       text: (cur && cur.text) || "", link: (cur && cur.link) || "",
-      photos: (cur && cur.photos) || [], done: done, updatedAt: Date.now()
+      photos: (cur && cur.photos) || [], files: (cur && cur.files) || [],
+      done: done, updatedAt: Date.now()
     }).then(function(){ toast(done ? "했어요로 표시했습니다" : "표시를 풀었습니다"); })
       ["catch"](function(e){ toast(errText(e)); });
   }
@@ -2374,6 +2903,7 @@ var FIREBASE_CONFIG = {
     $("s-link").value = cur ? cur.link : "";
     sShots.list = ((cur && cur.photos) || []).map(function(p){ return {url:p.url, path:p.path}; });
     sShots.render();
+    sFiles.load(cur && cur.files);
     $("s-delete").hidden = !cur;
     $("sb-err").hidden = true;
     openSheet("sheet-sub");
@@ -2389,15 +2919,20 @@ var FIREBASE_CONFIG = {
     var label = btn.textContent;
     btn.disabled = true;
     var id = subId(subTask.id);
-    sShots.upload("club", id, function(n){ btn.textContent = "사진 올리는 중 " + n; }).then(function(photos){
+    var photos = [];
+    sShots.upload("club", id, function(n){ btn.textContent = "사진 올리는 중 " + n; }).then(function(ph){
+      photos = ph;
+      return sFiles.upload(id, function(n){ btn.textContent = "파일 올리는 중 " + n; });
+    }).then(function(files){
       btn.textContent = "올리는 중…";
       return withPatience(put("clubSubs", id, {
         taskId: subTask.id, uid: myUid(), name: myName(),
-        text: $("s-text").value.trim(), link: link, photos: photos,
+        text: $("s-text").value.trim(), link: link, photos: photos, files: files,
         done: true, updatedAt: Date.now()
       }));
     }).then(function(how){
       sShots.list = [];
+      sFiles.list = [];
       closeSheets();
       savedToast(how, "올렸습니다");
     })["catch"](function(ex){
@@ -2410,6 +2945,88 @@ var FIREBASE_CONFIG = {
   $("s-delete").addEventListener("click", function(){
     if(!subTask || !window.confirm("내가 올린 것을 지울까요?")) return;
     drop("clubSubs", subId(subTask.id)).then(function(){ closeSheets(); toast("지웠습니다"); });
+  });
+
+  /* 프로젝트 */
+  var editingProj = null;
+  var pFiles = fileBox("p-files", 8);
+  $("p-file").addEventListener("change", function(e){ pFiles.add(e.target.files, "pj-err"); this.value = ""; });
+  $("p-start").addEventListener("click", function(){ openDatePop("p-start", {}); });
+  $("p-end").addEventListener("click", function(){ openDatePop("p-end", {}); });
+  // "원고함 https://…" 한 줄 → {name, url}
+  function parseLinks(text){
+    var out = [], bad = [];
+    String(text || "").split(/\r?\n/).forEach(function(line){
+      var t = line.trim();
+      if(!t) return;
+      var m = t.match(/https?:\/\/\S+/i);
+      if(!m){ bad.push(t); return; }
+      var name = t.replace(m[0], "").trim() || m[0];
+      out.push({name: name.slice(0, 40), url: m[0]});
+    });
+    return {links: out, bad: bad};
+  }
+  function projData(p, over){
+    var d = {
+      title: p.title || "", goal: p.goal || "", start: p.start || "", end: p.end || "",
+      links: (p.links || []).map(function(x){ return {name:x.name || "", url:x.url}; }),
+      files: (p.files || []).map(function(f){ return {url:f.url, path:f.path || "", name:f.name || "", size:f.size || 0, type:f.type || ""}; }),
+      done: !!p.done, createdAt: p.createdAt || Date.now(), updatedAt: Date.now()
+    };
+    Object.keys(over || {}).forEach(function(k){ d[k] = over[k]; });
+    return d;
+  }
+  function openProj(pj){
+    editingProj = pj;
+    $("pj-title").textContent = pj ? "프로젝트 고치기" : "프로젝트 만들기";
+    $("p-title").value = pj ? pj.title : "";
+    $("p-goal").value = pj ? pj.goal : "";
+    setDate("p-start", (pj && pj.start) || TODAY);
+    var nx = nextMeeting();
+    setDate("p-end", (pj && pj.end) || iso(addDays(parseISO(nx ? nx.date : TODAY), 14)));
+    $("p-links").value = ((pj && pj.links) || []).map(function(x){ return (x.name && x.name !== x.url ? x.name + " " : "") + x.url; }).join(String.fromCharCode(10));
+    pFiles.load(pj && pj.files);
+    $("p-done").checked = pj ? !!pj.done : false;
+    $("p-delete").hidden = !pj;
+    $("pj-err").hidden = true;
+    openSheet("sheet-proj");
+    if(!pj) setTimeout(function(){ $("p-title").focus(); }, 200);
+  }
+  $("pj-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    $("pj-err").hidden = true;
+    var title = $("p-title").value.trim();
+    if(!title){ showErr("pj-err", "프로젝트 이름을 적어 주세요."); $("p-title").focus(); return; }
+    var lk = parseLinks($("p-links").value);
+    if(lk.bad.length){ showErr("pj-err", "링크를 찾지 못한 줄이 있습니다: " + lk.bad.slice(0, 2).join(" / ")); return; }
+    var start = getDate("p-start"), end = getDate("p-end");
+    if(start && end && end < start){ showErr("pj-err", "마감이 시작보다 앞입니다."); return; }
+    var was = editingProj;
+    var id = was ? was.id : uid();
+    var btn = $("pj-form").querySelector(".btn.primary");
+    var label = btn.textContent;
+    btn.disabled = true;
+    pFiles.upload(id, function(n){ btn.textContent = "파일 올리는 중 " + n; }).then(function(files){
+      btn.textContent = "저장 중…";
+      return withPatience(put("clubProjects", id, projData({
+        title: title, goal: $("p-goal").value.trim(), start: start, end: end,
+        links: lk.links, files: files, done: $("p-done").checked,
+        createdAt: was ? (was.createdAt || Date.now()) : Date.now()
+      })));
+    }).then(function(how){
+      pFiles.list = [];
+      closeSheets();
+      savedToast(how, was ? "고쳤습니다" : "만들었습니다");
+    })["catch"](function(ex){
+      showErr("pj-err", errText(ex));
+    })["then"](function(){
+      btn.disabled = false;
+      btn.textContent = label;
+    });
+  });
+  $("p-delete").addEventListener("click", function(){
+    if(!editingProj || !window.confirm("이 프로젝트를 지울까요? 묶여 있던 해올 것과 모임 기록은 그대로 남습니다.")) return;
+    drop("clubProjects", editingProj.id).then(function(){ closeSheets(); toast("지웠습니다"); });
   });
 
   /* 의견 */
